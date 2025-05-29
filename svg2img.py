@@ -150,7 +150,7 @@ def auto_download(html_path, download_dir, output_format):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("使い方: python svg_to_image_auto.py input.svg")
+        print("使い方: python svg2img.py input.svg")
         sys.exit(1)
 
     svg_file = sys.argv[1]

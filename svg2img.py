@@ -195,7 +195,7 @@ if __name__ == "__main__":
                 print(f"⚠️ ゴミ箱に移動できなかったので削除します: {e}")
                 try:
                     os.remove(html_filename)
-                except:
+                except Exception as e:
                     print(f"❌ 削除にも失敗したので放置します: {e}")
 
     except Exception as e:

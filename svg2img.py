@@ -137,16 +137,29 @@ def auto_download(html_path, download_dir, output_format):
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
-        page.goto(html_url)
+        try :
+            page.goto(html_url)
 
-        with page.expect_download() as download_info:
-            page.click(f"text={button_text}")
+            with page.expect_download() as download_info:
+                page.click(f"text={button_text}")
 
-        download = download_info.value
-        save_path = os.path.join(download_dir, download.suggested_filename)
-        download.save_as(save_path)
-        print(f"✅ 保存完了: {save_path}")
-        browser.close()
+            # ✅ download_info.value はダウンロード完了後に取得される Download オブジェクト
+            #    withブロック内で click() をトリガーしておけば、ブロック終了時に download が確定する。
+            #    Playwright公式ドキュメントにも同様の使用例あり：
+            #    https://playwright.dev/python/docs/downloads#download-events
+            #    ブロック外でも安全にアクセスできる仕様なので、ここで save_as() を呼び出してOK。
+            download = download_info.value
+            save_path = os.path.join(download_dir, download.suggested_filename)
+            download.save_as(save_path)
+            print(f"✅ 保存完了: {save_path}")
+        finally:
+            # ✅ Playwrightでは browser > context の順で生成されるため、
+            #    closeも context → browser の順が望ましい。
+            #    公式にも close() でリソース解放を推奨：
+            #    https://playwright.dev/python/docs/api/class-browsercontext#browsercontext-close
+            #    https://playwright.dev/python/docs/api/class-browser#browser-close
+            context.close()
+            browser.close()
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -177,7 +190,7 @@ if __name__ == "__main__":
                 try:
                     os.remove(html_filename)
                 except:
-                    print("❌ 削除にも失敗したので放置します")
+                    print(f"❌ 削除にも失敗したので放置します: {e}")
 
     except Exception as e:
         print(f"エラー: {e}")

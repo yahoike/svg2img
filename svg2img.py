@@ -75,6 +75,12 @@ def generate_html(data_uri, output_filename, html_file, output_format):
   <title>SVG to {output_format.upper()}</title>
 </head>
 <body>
+  <!-- 
+    注意：
+    この <img> タグの width="400" は表示上のスケーリングにのみ影響し、
+    実際に出力される画像サイズ（canvasのサイズ）は SVG の元のサイズに依存します。
+    canvas.width / height は image の自然サイズ（intrinsic size）を使用。
+  -->
   <img src="{data_uri}" alt="SVG Image" width="400">
   <script>
     function download() {{
